@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection</title>
+</head>
+<body>
+    <div id = "messages"></div>
+    <form>
+        <p>Entrer un pseudo</p><input type="text" id="name" autocomplete="off" />
+        <button>send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        //connexion au server
+        const socket = io();
+        window.onload = () => {
+            // listen to submit event
+            document.querySelector("form").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                //recuperation du nom et envoi
+                const userName = document.querySelector("#name").value;
+                socket.emit("setUserName", name );
+                //redirection vers index.html
+                socket.on('redirect', (url) => {
+                    console.log(url)
+                    window.location.href = url;
+                });
+            })
+        }
+    </script>
+</body>
+</html>

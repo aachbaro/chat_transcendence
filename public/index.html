@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Site Web</title>
+</head>
+<body>
+
+    <!-- set le pseudo de l'utilisateur -->
+    <div id="userNameSession"></div>
+    <form id="setUser">
+        <p>Entrer un pseudo</p><input type="text" id="name" autocomplete="off" />
+        <button>send</button>
+    </form>
+
+    <!-- affichage des mesages -->
+    <div id = "messages"><h2>chatbox</h2></div>
+    <form id="sendMessage">
+        <input type="text" id="msg" autocomplete="off" />
+        <button>send</button>
+    </form>
+
+    <!-- affichae des channels -->
+    <div id="channelBox"><h2>liste channel</h2>
+        <div id="listChannel"></div>
+    </div>
+
+    <!-- creer un channel -->
+    <form id="createChan">
+        <input type="text" id="newChan" autocomplete="off" />
+        <button>create channel</button>
+    </form>
+
+    <!-- join un channel -->
+    <form id="joinChan">
+        <input type="text" id="existingChan" autocomplete="off" />
+        <button>join channel</button>
+    </form>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+        //connexion au server
+        const socket = io();
+        window.onload = () => {
+
+            // PARTIE EMISSION
+
+            // envoyer le nom d'utilsateur
+            document.querySelector("#setUser").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                //recuperation du nom et envoi
+                const name = document.querySelector("#name").value;
+                socket.emit("setUserName", name );
+            })
+
+            // emettre un message
+            document.querySelector("#sendMessage").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                //recuperation du message et envoi
+                const message_text = document.querySelector("#msg").value;
+                socket.emit("chat_message", message_text );
+            })
+
+            // creer un channel
+            document.querySelector("#createChan").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                //recuperation du nom du chan et envoi
+                const nameChannel = document.querySelector("#newChan").value;
+                socket.emit("create_channel", nameChannel);
+            })
+            // selectionnner un channel
+            document.querySelector("#listChannel").addEventListener("click", (e) => {
+                if (e.target && e.target.tagName === "BUTTON") {
+                    socket.emit("selectChan", e.target.id);
+                }
+            })
+
+            // PARTIE RECEPTION
+
+            // mise a jour du userName
+            socket.on("setUserName", (name) => {
+                (document.querySelector("#setUser")).remove();
+                document.querySelector("#userNameSession").innerHTML += `<h1>utilsateur: ${name}</h1>`
+            })
+            // listen to chat_message event
+            socket.on("chat_message", (msg) => {
+                console.log(msg);
+                document.querySelector("#messages").innerHTML += `<p>${msg}</p>`
+                document.querySelector("#msg").value = "";
+            })
+            //update la liste de channel
+            socket.on("updateChanLst", (lstChan) => {
+                const divLstChan = document.querySelector("#listChannel");
+                while (divLstChan.firstChild) {
+                    divLstChan.removeChild(divLstChan.firstChild);
+                }
+                lstChan.forEach((channel) => {
+                    const channelElement = document.createElement("button");
+                    channelElement.textContent = `Name : ${channel.name} |  ID : ${channel.id}`;
+                    channelElement.id = `${channel.id}` 
+                    divLstChan.appendChild(channelElement);
+                });
+            })
+
+            // selection d'un channel pour la chatBox
+            socket.on("selectedChannel", (channelForChatBox) => {
+                console.log(channelForChatBox);
+            })
+        }
+    </script>
+</body>
+</html>
