@@ -9,6 +9,9 @@ class User {
     getChannels() {
       return this.channels;
     }
+    addChannel(newchannel) {
+      this.channels.push(newchannel);
+    }
   }
 
   module.exports = User;

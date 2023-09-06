@@ -9,6 +9,9 @@ class Channel {
     getUsers() {
         return this.users;
     }
+    getMessages() {
+        return this.messages;
+    }
 }
 
 module.exports = Channel;
